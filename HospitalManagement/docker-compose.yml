@@ -1,6 +1,31 @@
 version: '3.8'
 
 services:
+  django_mysql:
+    container_name: django_mysql
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    ports:
+      - 3306:3306
+    volumes:
+      - /data/mysql:/var/lib/mysql
+    networks:
+      - service_network
+
+  django_mongodb:
+    container_name: django_mongodb
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - /data/django_mongodb:/data/db
+    networks:
+      - service_network
+
   appointment_management:
     container_name: appointment_management
     build: ./appointment_management
@@ -11,6 +36,10 @@ services:
       - 8000:8000
     networks:
       - service_network
+    depends_on:
+      - django_mysql
+      - django_mongodb
+
   doctor_management:
     container_name: doctor_management
     build: ./doctor_management
@@ -21,6 +50,10 @@ services:
       - 8001:8000
     networks:
       - service_network
+    depends_on:
+      - django_mysql
+      - django_mongodb
+
   medical_record_management:
     container_name: medical_record_management
     build: ./medical_record_management
@@ -31,6 +64,10 @@ services:
       - 8002:8000
     networks:
       - service_network
+    depends_on:
+      - django_mysql
+      - django_mongodb
+
   patient_management:
     container_name: patient_management
     build: ./patient_management
@@ -41,6 +78,10 @@ services:
       - 8003:8000
     networks:
       - service_network
+    depends_on:
+      - django_mysql
+      - django_mongodb
+
   payment_management:
     container_name: payment_management
     build: ./payment_management
@@ -51,6 +92,10 @@ services:
       - 8004:8000
     networks:
       - service_network
+    depends_on:
+      - django_mysql
+      - django_mongodb
+
   pharmacy_management:
     container_name: pharmacy_management
     build: ./pharmacy_management
@@ -61,6 +106,10 @@ services:
       - 8005:8000
     networks:
       - service_network
+    depends_on:
+      - django_mysql
+      - django_mongodb
+
   room_management:
     container_name: room_management
     build: ./room_management
@@ -71,6 +120,10 @@ services:
       - 8006:8000
     networks:
       - service_network
+    depends_on:
+      - django_mysql
+      - django_mongodb
+
   staff_management:
     container_name: staff_management
     build: ./staff_management
@@ -81,8 +134,10 @@ services:
       - 8007:8000
     networks:
       - service_network
+    depends_on:
+      - django_mysql
+      - django_mongodb
 
 networks:
-    service_network:
-      driver: bridge
-  
+  service_network:
+    driver: bridge
