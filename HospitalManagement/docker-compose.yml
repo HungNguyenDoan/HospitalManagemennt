@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  appointment_management:
+    container_name: appointment_management
+    build: ./appointment_management
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./appointment_management:/usr/src/app/
+    ports:
+      - 8000:8000
+    networks:
+      - service_network
+  doctor_management:
+    container_name: doctor_management
+    build: ./doctor_management
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./doctor_management:/usr/src/app/
+    ports:
+      - 8001:8000
+    networks:
+      - service_network
+  medical_record_management:
+    container_name: medical_record_management
+    build: ./medical_record_management
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./medical_record_management:/usr/src/app/
+    ports:
+      - 8002:8000
+    networks:
+      - service_network
+  patient_management:
+    container_name: patient_management
+    build: ./patient_management
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./patient_management:/usr/src/app/
+    ports:
+      - 8003:8000
+    networks:
+      - service_network
+  payment_management:
+    container_name: payment_management
+    build: ./payment_management
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./payment_management:/usr/src/app/
+    ports:
+      - 8004:8000
+    networks:
+      - service_network
+  pharmacy_management:
+    container_name: pharmacy_management
+    build: ./pharmacy_management
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./pharmacy_management:/usr/src/app/
+    ports:
+      - 8005:8000
+    networks:
+      - service_network
+  room_management:
+    container_name: room_management
+    build: ./room_management
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./room_management:/usr/src/app/
+    ports:
+      - 8006:8000
+    networks:
+      - service_network
+  staff_management:
+    container_name: staff_management
+    build: ./staff_management
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./staff_management:/usr/src/app/
+    ports:
+      - 8007:8000
+    networks:
+      - service_network
+
+networks:
+    service_network:
+      driver: bridge
+  
