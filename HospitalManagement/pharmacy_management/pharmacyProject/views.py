@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -62,8 +63,8 @@ class MedicalSupplySearchAPIView(APIView):
             return Response({"error": "Both type and keywords are required"}, status=status.HTTP_400_BAD_REQUEST)
 
         supplies = MedicalSupply.objects.filter(
-            category__name__icontains=supply_type,
-            name__icontains=keywords
+            Q(category__name__icontains=supply_type) &
+            Q(name__icontains=keywords)
         )
         serializer = MedicalSupplySerializer(supplies, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
