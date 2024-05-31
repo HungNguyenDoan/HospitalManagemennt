@@ -33,7 +33,6 @@ class ServiceInvoiceCreateAPIView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         if not staff_data:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
         serializer = ServiceInvoiceSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -104,7 +103,6 @@ class MedicineInvoiceCreateAPIView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         if not staff_data:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
         serializer = MedicineInvoiceSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
