@@ -87,14 +87,3 @@ class PatientSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         pass
-
-class HealthRecordSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HealthRecord
-        fields = ['id', 'patient', 'visit_date', 'diagnosis', 'treatment','doctor_id','description']
-
-class HealthDetailRecordSerializer(serializers.ModelSerializer):
-    patient = PatientInfoSerializer()
-    class Meta:
-        model = HealthRecord
-        fields = ['id', 'patient', 'visit_date', 'diagnosis', 'treatment','doctor_id','description']

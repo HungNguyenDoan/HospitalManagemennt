@@ -32,13 +32,3 @@ class Patient(models.Model):
     is_active = models.IntegerField(default=1)
     class Meta:
         db_table = 'patients'
-class HealthRecord(models.Model):
-    id = models.AutoField(primary_key=True)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=False)
-    visit_date = models.DateTimeField()
-    diagnosis = models.TextField()
-    treatment = models.TextField()
-    description = models.TextField()
-    doctor_id = models.IntegerField(null=False)
-    class Meta:
-        db_table = 'health_records'

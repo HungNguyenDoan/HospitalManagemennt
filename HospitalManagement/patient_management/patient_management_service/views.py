@@ -5,9 +5,8 @@ from .serializers import *
 from django.contrib.auth.hashers import make_password
 from .models import *
 from django.db import transaction
-from django.http import Http404
 from django.db.models import Q
-
+import requests
 class RegisterView(APIView):
     @transaction.atomic
     def post(self, request):
@@ -45,15 +44,20 @@ class GetAllPatient(APIView):
         return Response(serializers.data, status=status.HTTP_200_OK)    
 class GetPatientByDoctor(APIView):
     def get(self, request, doctor_id):
-        health_records = HealthRecord.objects.filter(doctor_id=doctor_id)
-        patients = []
-        for health_record in health_records:
-            patient = Patient.objects.filter(pk=health_record.patient.id, is_active=1).first()
-            if patient not in patients and patient is not None:
-                patients.append(patient)
-        serializers = PatientInfoSerializer(patients, many=True)
-        return Response(serializers.data, status=status.HTTP_200_OK)    
-        
+        response = requests.get("http://127.0.0.1:8001/api/records/doctors/"+doctor_id)
+        if response.status_code == 200:
+            health_records = response.json()
+            patients = []
+            for health_record in health_records:
+                patient = Patient.objects.filter(pk=health_record['patient_id'], is_active=1).first()
+                if patient not in patients and patient is not None:
+                    patients.append(patient)
+            serializers = PatientInfoSerializer(patients, many=True)
+            return Response(serializers.data, status=status.HTTP_200_OK)    
+        else:
+            patients = []
+            serializers = PatientInfoSerializer(patients, many=True)
+            return Response(serializers.data, status=status.HTTP_200_OK) 
 class GetPatientDetail(APIView):
     def get_object(self, id):
         try:
@@ -110,62 +114,9 @@ class DeletePatient(APIView):
         try:
             patient.is_active = 0
             patient.save()
-            return Response({"message": "Bệnh nhân đã được xóa"}, status=status.HTTP_200_OK)
+            return Response({"message": "Bệnh nhân đã được xóa"}, status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response({"message": f"Lỗi khi xóa bệnh nhân: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-
-class GetAllHealthRecord(APIView):
-    def get(self, request):
-        health_records = HealthRecord.objects.all()
-        serializers = HealthDetailRecordSerializer(health_records, many=True)
-        return Response(serializers.data, status=status.HTTP_200_OK)
-    
-class GetHealthRecordPatient(APIView):
-    def get(self, request, patient_id):
-        health_records = HealthRecord.objects.filter(patient=patient_id)
-        serializers = HealthDetailRecordSerializer(health_records, many=True)
-        return Response(serializers.data, status=status.HTTP_200_OK) 
-    
-class CreateHealthRecord(APIView):
-    def post(self, request):
-        serializer = HealthRecordSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-class UpdateHealthRecord(APIView):
-    def get_object(self, id):
-        try:
-            return HealthRecord.objects.get(pk=id)
-        except HealthRecord.DoesNotExist:
-            return None
-    def put(self, request, health_record_id):
-        health_record = self.get_object(health_record_id)
-        if health_record is None:
-            return Response({"message":"Báo cáo không tồn tại"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = HealthRecordSerializer(health_record, request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class DeleteHealthRecord(APIView):
-    def get_object(self, id):
-        try:
-            return HealthRecord.objects.get(pk=id)
-        except HealthRecord.DoesNotExist:
-            return None
-    def delete(self, request, health_record_id):
-        health_record = self.get_object(health_record_id)
-        if health_record is None:
-            return Response({"message":"Báo cáo không tồn tại"}, status=status.HTTP_404_NOT_FOUND)
-        try:
-            check = health_record.delete()
-            if check:
-                return Response({"message": "Báo cáo đã được xóa"}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"message": f"Lỗi khi xóa báo cáo: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class SearchPatient(APIView):
     def get(self, request):
@@ -191,11 +142,13 @@ class SearchPatient(APIView):
                     patient = Patient.objects.filter(address=ar.id).first()
                     if patient not in patients:
                         patients.append(patient)  
-            health_records = HealthRecord.objects.all()
-            for health_record in health_records:
-                if health_record.diagnosis.lower().find(keyword.lower())!=-1 or health_record.description.lower().find(keyword.lower())!=-1:
-                    patient = Patient.objects.filter(pk=health_record.patient.id).first()
-                    if patient not in patients:
-                        patients.append(patient)  
+            response = requests.get("http://127.0.0.1:8001/api/records")
+            if response.status_code == 200:
+                health_records = response.json()
+                for health_record in health_records:
+                    if health_record['final_diagnosis'].lower().find(keyword.lower())!=-1 or health_record['symptoms'].lower().find(keyword.lower())!=-1:
+                        patient = Patient.objects.filter(pk=health_record['patient_id']).first()
+                        if patient not in patients:
+                            patients.append(patient)  
         serializers = PatientInfoSerializer(patients, many=True)
         return Response(serializers.data, status=status.HTTP_200_OK)
