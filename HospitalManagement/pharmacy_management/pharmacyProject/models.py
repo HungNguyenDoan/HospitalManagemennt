@@ -40,22 +40,3 @@ class MedicalSupply(models.Model):
 
     class Meta:
         db_table = "medical_supplies"
-
-
-class Invoice(models.Model):
-    created_at = models.DateTimeField(auto_now=True)
-    patient_id = models.IntegerField()
-    staff_id = models.IntegerField()
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        db_table = "invoices"
-
-
-class InvoiceDetail(models.Model):
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
-    medical_supply = models.ForeignKey(MedicalSupply, on_delete=models.CASCADE)
-    quantity = models.IntegerField()
-
-    class Meta:
-        db_table = "invoice_details"
