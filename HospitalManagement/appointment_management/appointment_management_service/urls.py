@@ -1,12 +1,20 @@
 from django.contrib import admin
-from django.urls import path, include
-from appointment_management_service.views import AppointmentList, AppointmentDetail
+from django.urls import path
+from appointment_management_service.views import (
+    AppointmentCreateAPIView,
+    AppointmentDetailAPIView,
+    AppointmentUpdateAPIView,
+    AppointmentDeleteAPIView,
+    AppointmentListByDoctorOrPatientAPIView,
+    AppointmentListByDoctorOrPatientAndDateAPIView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('schedules/patients/create', AppointmentList.as_view(), name='appointment-create'),
-    path('schedules/<int:id>', AppointmentDetail.as_view(), name='appointment-detail'),
-    path('schedules/update/<int:id>', AppointmentDetail.as_view(), name='appointment-update'),
-    path('schedules/delete/<int:id>', AppointmentDetail.as_view(), name='appointment-delete'),
-    path('schedules', AppointmentList.as_view(), name='appointment-list'),
+    path('api/schedules/patients/create', AppointmentCreateAPIView.as_view(), name='appointment-create'),
+    path('api/schedules/<int:id>', AppointmentDetailAPIView.as_view(), name='appointment-detail'),
+    path('api/schedules/update/<int:id>', AppointmentUpdateAPIView.as_view(), name='appointment-update'),
+    path('api/schedules/delete/<int:id>', AppointmentDeleteAPIView.as_view(), name='appointment-delete'),
+    path('api/schedules', AppointmentListByDoctorOrPatientAndDateAPIView.as_view(), name='appointment-list-by-date'),
+    path('api/schedules', AppointmentListByDoctorOrPatientAPIView.as_view(), name='appointment-list'),
 ]
