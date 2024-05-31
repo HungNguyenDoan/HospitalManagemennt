@@ -6,8 +6,8 @@ services:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_USER: root
-      MYSQL_PASSWORD: mypassword
+      MYSQL_USER: hungnguyen
+      MYSQL_PASSWORD: password
     ports:
       - 3306:3306
     volumes:
