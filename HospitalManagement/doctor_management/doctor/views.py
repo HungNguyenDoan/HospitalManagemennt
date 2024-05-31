@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.shortcuts import render
 from rest_framework import status
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -8,7 +9,7 @@ from django.db.models import Q
 from .models import Doctor, Account
 from .serializers import DoctorSerializer, AccountSerializer
 
-class DoctorCreateView(LoginRequiredMixin, APIView):
+class DoctorCreateAPIView(LoginRequiredMixin, APIView):
     login_url = '/admin/login/'
 
     def post(self, request):
@@ -18,7 +19,7 @@ class DoctorCreateView(LoginRequiredMixin, APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class DoctorDetailView(LoginRequiredMixin, APIView):
+class DoctorDetailAPIView(LoginRequiredMixin, APIView):
     login_url = '/admin/login/'
 
     def get(self, request, id):
@@ -26,7 +27,7 @@ class DoctorDetailView(LoginRequiredMixin, APIView):
         serializer = DoctorSerializer(doctor)
         return Response(serializer.data)
 
-class DoctorUpdateView(LoginRequiredMixin, APIView):
+class DoctorUpdateAPIView(LoginRequiredMixin, APIView):
     login_url = '/admin/login/'
 
     def put(self, request, id):
@@ -37,7 +38,7 @@ class DoctorUpdateView(LoginRequiredMixin, APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class DoctorDeleteView(LoginRequiredMixin, APIView):
+class DoctorDeleteAPIView(LoginRequiredMixin, APIView):
     login_url = '/admin/login/'
 
     def delete(self, request, id):
@@ -45,7 +46,7 @@ class DoctorDeleteView(LoginRequiredMixin, APIView):
         doctor.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class SearchDoctorsView(LoginRequiredMixin, APIView):
+class DoctorSearchAPIView(LoginRequiredMixin, APIView):
     login_url = '/admin/login/'
 
     def get(self, request):
@@ -66,7 +67,7 @@ class SearchDoctorsView(LoginRequiredMixin, APIView):
         serializer = DoctorSerializer(doctors, many=True)
         return Response(serializer.data)
 
-class LoginView(APIView):
+class DoctorLoginAPIView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -76,9 +77,19 @@ class LoginView(APIView):
             return Response({'message': 'Logged in successfully'})
         return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-class LogoutView(LoginRequiredMixin, APIView):
+class DoctorLogoutAPIView(LoginRequiredMixin, APIView):
     login_url = '/admin/login/'
 
     def post(self, request):
         logout(request)
         return Response({'message': 'Logged out successfully'})
+
+# def doctor_module(request):
+#     return render(request, 'doctor/doctor_module.html')
+
+# def view_patients(request):
+#     patients = Patient.objects.all()
+#     return render(request, 'doctor/view_patients.html', {'patients': patients})
+
+# def search_patients(request):
+#     return render(request, 'doctor/search_patients.html')
