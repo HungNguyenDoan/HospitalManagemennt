@@ -21,16 +21,16 @@ class AppointmentList(APIView):
 
         if role and entity_id:
             if role.lower() == 'doctor':
-                appointments = Appointment.objects.filter(doctorId=entity_id)
+                appointments = Appointment.objects.filter(doctor_id=entity_id)
             elif role.lower() == 'patient':
-                appointments = Appointment.objects.filter(patientId=entity_id)
+                appointments = Appointment.objects.filter(patient_id=entity_id)
             else:
                 return Response({"detail": "Invalid role provided"}, status=status.HTTP_400_BAD_REQUEST)
             
             if date:
                 parsed_date = parse_date(date)
                 if parsed_date:
-                    appointments = appointments.filter(appointmentDate=parsed_date)
+                    appointments = appointments.filter(date=parsed_date)
                 else:
                     return Response({"detail": "Invalid date format"}, status=status.HTTP_400_BAD_REQUEST)
 

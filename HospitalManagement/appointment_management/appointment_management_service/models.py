@@ -1,15 +1,14 @@
 from django.db import models
 
 # Create your models here.
-
 class Appointment(models.Model):
-    patientId = models.PositiveIntegerField(null=True)
-    doctorId = models.PositiveIntegerField(null=True)
-    patientName = models.CharField(max_length=40, null=True)
-    doctorName = models.CharField(max_length=40, null=True)
-    appointmentDate = models.DateField(auto_now_add=True)
-    description = models.TextField(max_length=500)
-    status = models.BooleanField(default=False)
+    patient_id = models.IntegerField()
+    doctor_id = models.IntegerField()
+    date = models.DateField()
+    time = models.TimeField()
+    title = models.TextField(max_length=255)
+    note = models.TextField(max_length=255)
+    status = models.IntegerField(default=1)
 
-    def __str__(self):
-        return f"Appointment {self.id} - {self.patientName} with {self.doctorName}"
+    class Meta:
+        db_table = "appointments"
