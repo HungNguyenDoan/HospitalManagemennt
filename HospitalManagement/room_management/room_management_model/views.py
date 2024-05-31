@@ -1,10 +1,12 @@
 from rest_framework import status
+import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Clinic, Room, Bed, Department, PatientBed
 from .serializers import ClinicSerializer, RoomSerializer, BedSerializer, DepartmentSerializer, PatientBedSerializer
 
 class DepartmentListCreate(APIView):
+        
     def get(self, request):
         departments = Department.objects.all()
         serializer = DepartmentSerializer(departments, many=True)
@@ -50,10 +52,23 @@ class ClinicListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ClinicDetail(APIView):
+    def get_doctor_info(self, doctor_id):
+        url = f'http://127.0.0.1:8003/api/doctor/{doctor_id}/'
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return None
+        
     def get(self, request, pk):
         clinic = Clinic.objects.get(pk=pk)
+        doctor_info = self.get_doctor_info(clinic.doctor_id)
         serializer = ClinicSerializer(clinic)
-        return Response(serializer.data)
+        data = serializer.data
+        if doctor_info:
+            data['doctor_info'] = doctor_info
+        data.pop('doctor_id', None)
+        return Response(data)
     
     def put(self, request, pk):
         clinic = Clinic.objects.get(pk=pk)
@@ -164,10 +179,22 @@ class PatientBedListCreate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PatientBedDetail(APIView):
+    def get_patient_info(self, patient_id):
+        url = f'http://127.0.0.1:8000/api/patient/{patient_id}/'
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return None
+        
     def get(self, request, pk):
         patient_bed = PatientBed.objects.get(patient_id=pk)
+        patient_info = self.get_patient_info(patient_bed.patient_id)
         serializer = PatientBedSerializer(patient_bed)
-        return Response(serializer.data)
+        data = serializer.data
+        if patient_info:
+            data['patient_info'] = patient_info
+        return Response(data)
     
     def put(self, request, pk):
         patient_bed = PatientBed.objects.get(pk=pk)
