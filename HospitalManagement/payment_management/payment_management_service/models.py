@@ -12,8 +12,8 @@ class ServiceInvoice(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return f"Service Invoice #{self.id} for {self.patient}"
+    class Meta:
+        db_table = "service_invoice"
 
 #Hóa đơn thuốc
 class MedicationInvoice(models.Model):
@@ -27,5 +27,5 @@ class MedicationInvoice(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return f"Medication Invoice #{self.id} for {self.patient}"
+    class Meta:
+        db_table = "medication_invoice"
