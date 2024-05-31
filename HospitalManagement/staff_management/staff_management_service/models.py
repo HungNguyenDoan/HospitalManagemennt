@@ -1,28 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 
-class StaffManager(BaseUserManager):
-    def create_user(self, username, password=None, **extra_fields):
-        if not username:
-            raise ValueError('Users must have a username')
-
-        account = Account.objects.create(username=username)
-        account.set_password(password)
-        account.save(using=self._db)
-        user = self.model(account=account, **extra_fields)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, username, password, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self.create_user(username, password, **extra_fields)
 
 class Position(models.Model):
     name = models.CharField(max_length=255)
@@ -54,7 +32,6 @@ class Staff(AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
-    objects = StaffManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
