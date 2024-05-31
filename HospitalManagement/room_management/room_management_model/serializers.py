@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Clinic, HospitalRoom, Bed, Department
+from .models import Clinic, Room, Bed, Department, PatientBed
 
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,12 +11,18 @@ class ClinicSerializer(serializers.ModelSerializer):
         model = Clinic
         fields = '__all__'
 
-class HospitalRoomSerializer(serializers.ModelSerializer):
+class RoomSerializer(serializers.ModelSerializer):
     class Meta:
-        model = HospitalRoom
+        model = Room
         fields = '__all__'
+
 
 class BedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bed
+        fields = '__all__'
+
+class PatientBedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatientBed
         fields = '__all__'

@@ -1,8 +1,8 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Clinic, HospitalRoom, Bed, Department
-from .serializers import ClinicSerializer, HospitalRoomSerializer, BedSerializer, DepartmentSerializer
+from .models import Clinic, Room, Bed, Department, PatientBed
+from .serializers import ClinicSerializer, RoomSerializer, BedSerializer, DepartmentSerializer, PatientBedSerializer
 
 class DepartmentListCreate(APIView):
     def get(self, request):
@@ -76,12 +76,12 @@ class ClinicByDepartment(APIView):
 
 class HospitalRoomListCreate(APIView):
     def get(self, request):
-        rooms = HospitalRoom.objects.all()
-        serializer = HospitalRoomSerializer(rooms, many=True)
+        rooms = Room.objects.all()
+        serializer = RoomSerializer(rooms, many=True)
         return Response(serializer.data)
     
     def post(self, request):
-        serializer = HospitalRoomSerializer(data=request.data)
+        serializer = RoomSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -89,27 +89,27 @@ class HospitalRoomListCreate(APIView):
 
 class HospitalRoomDetail(APIView):
     def get(self, request, pk):
-        room = HospitalRoom.objects.get(pk=pk)
-        serializer = HospitalRoomSerializer(room)
+        room = Room.objects.get(pk=pk)
+        serializer = RoomSerializer(room)
         return Response(serializer.data)
     
     def put(self, request, pk):
-        room = HospitalRoom.objects.get(pk=pk)
-        serializer = HospitalRoomSerializer(room, data=request.data)
+        room = Room.objects.get(pk=pk)
+        serializer = RoomSerializer(room, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, pk):
-        room = HospitalRoom.objects.get(pk=pk)
+        room = Room.objects.get(pk=pk)
         room.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class HospitalRoomByDepartment(APIView):
     def get(self, request, department_id):
-        rooms = HospitalRoom.objects.filter(department_id=department_id)
-        serializer = HospitalRoomSerializer(rooms, many=True)
+        rooms = Room.objects.filter(department_id=department_id)
+        serializer = RoomSerializer(rooms, many=True)
         return Response(serializer.data)
 
 class BedListCreate(APIView):
@@ -146,6 +146,38 @@ class BedDetail(APIView):
 
 class BedByRoom(APIView):
     def get(self, request, room_id):
-        beds = Bed.objects.filter(hospital_room_id=room_id)
+        beds = Bed.objects.filter(room_id=room_id)
         serializer = BedSerializer(beds, many=True)
         return Response(serializer.data)
+
+class PatientBedListCreate(APIView):
+    def get(self, request):
+        patient_beds = PatientBed.objects.all()
+        serializer = PatientBedSerializer(patient_beds, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        serializer = PatientBedSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PatientBedDetail(APIView):
+    def get(self, request, pk):
+        patient_bed = PatientBed.objects.get(patient_id=pk)
+        serializer = PatientBedSerializer(patient_bed)
+        return Response(serializer.data)
+    
+    def put(self, request, pk):
+        patient_bed = PatientBed.objects.get(pk=pk)
+        serializer = PatientBedSerializer(patient_bed, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        patient_bed = PatientBed.objects.get(pk=pk)
+        patient_bed.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
