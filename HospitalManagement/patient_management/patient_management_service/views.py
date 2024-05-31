@@ -7,49 +7,50 @@ from .models import *
 from django.db import transaction
 from django.db.models import Q
 import requests
-class RegisterView(APIView):
+class PatientCreateAPIView(APIView):
     @transaction.atomic
     def post(self, request):
         patient_data = request.data
-        username = patient_data.get('account', {}).get('username')
+        username = patient_data.get('username',{})
         check = Account.objects.filter(username=username).first()
 
         if check is not None:
             return Response({"message": "Tài khoản đã tồn tại"}, status=status.HTTP_400_BAD_REQUEST)
 
-        patient_data['account']['password'] = make_password(patient_data['account'].get('password'))
-        serializer = PatientSerializer(data=patient_data)
+        patient_data['password'] = make_password(patient_data.get('password'))
+        serializer = AccountSerializer(data=patient_data)
         
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({"message":"Thêm tài khỏa thành công"}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class LoginView(APIView):
+class LoginAPIView(APIView):
     def post(self, request):
-        serializer = PatientLoginSerializer(data=request.data)
+        serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             patient = serializer.validated_data  
             patient_serializer = PatientInfoSerializer(patient)           
             return Response({
-                'patient': patient_serializer.data,
+                'message':'Đăng nhập thành công',
+                'patient': patient_serializer.data
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class GetAllPatient(APIView):
+class GetAllPatientAPIView(APIView):
     def get(self, request):
         patients = Patient.objects.filter(is_active=1)
         serializers =  PatientInfoSerializer(patients, many = True)
         return Response(serializers.data, status=status.HTTP_200_OK)    
-class GetPatientByDoctor(APIView):
+class PatientListByDoctorAPIView(APIView):
     def get(self, request, doctor_id):
-        response = requests.get("http://127.0.0.1:8001/api/records/doctors/"+doctor_id)
+        response = requests.get("http://127.0.0.1:8001/api/records?role=doctor&id="+doctor_id)
         if response.status_code == 200:
-            health_records = response.json()
+            medical_records = response.json()
             patients = []
-            for health_record in health_records:
-                patient = Patient.objects.filter(pk=health_record['patient_id'], is_active=1).first()
+            for medical_record in medical_records:
+                patient = Patient.objects.filter(pk=medical_record['patient_id'], is_active=1).first()
                 if patient not in patients and patient is not None:
                     patients.append(patient)
             serializers = PatientInfoSerializer(patients, many=True)
@@ -58,10 +59,10 @@ class GetPatientByDoctor(APIView):
             patients = []
             serializers = PatientInfoSerializer(patients, many=True)
             return Response(serializers.data, status=status.HTTP_200_OK) 
-class GetPatientDetail(APIView):
+class GetPatientDetailAPIView(APIView):
     def get_object(self, id):
         try:
-            return Patient.objects.get(pk=id)
+            return Patient.objects.get(pk=id,is_active=1)
         except Patient.DoesNotExist:
             return None
         
@@ -71,11 +72,10 @@ class GetPatientDetail(APIView):
             return Response({"message":"Bệnh nhân không tồn tại"}, status=status.HTTP_404_NOT_FOUND)
         serializer = PatientInfoSerializer(patient)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-class UpdateInfoPatient(APIView):
+class UpdatePatientAPIView(APIView):
     def get_object(self, id):
         try:
-            return Patient.objects.get(pk=id)
+            return Patient.objects.get(pk=id,is_active=1)
         except Patient.DoesNotExist:
             return None
     @transaction.atomic
@@ -83,28 +83,17 @@ class UpdateInfoPatient(APIView):
         patient = self.get_object(id)
         if patient is None:
             return Response({"message":"Bệnh nhân không tồn tại"}, status=status.HTTP_404_NOT_FOUND)
-        full_name_data = request.data.get('full_name', {})
-        address_data = request.data.get('address', {})
-        full_name_serializer = FullNameSerializer(patient.full_name, full_name_data)
-        if full_name_serializer.is_valid():
-            full_name_serializer.save()
-        else:
-            return Response(full_name_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        address_serializer = AddressSerializer(patient.address, address_data)
-        if address_serializer.is_valid():
-            address_serializer.save()
-        else:
-            return Response(address_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        serializer = PatientUpdateInfoSerializer(patient, request.data)
+        
+        serializer = PatientSerializer(patient, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
 
-class DeletePatient(APIView):
+class DeletePatientAPIView(APIView):
     def get_object(self, id):
         try:
-            return Patient.objects.get(pk=id)
+            return Patient.objects.get(pk=id,is_active=1)
         except Patient.DoesNotExist:
             return None
     def delete(self, request, id):
@@ -118,37 +107,29 @@ class DeletePatient(APIView):
         except Exception as e:
             return Response({"message": f"Lỗi khi xóa bệnh nhân: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
-class SearchPatient(APIView):
+class PatientSearchAPIView(APIView):
     def get(self, request):
-        keyword = request.query_params.get('keyword','')
+        keyword = request.query_params.get('keywords','')
         patients = []
         if keyword:
             if keyword.isdigit():
                 id_keyword = int(keyword)
                 patient_query = Patient.objects.filter(Q(id=id_keyword))
+                print(patient_query)
                 if patient_query is not None:
                     patients.extend(patient_query)
-            full_names = FullName.objects.all()
-            for full_name in full_names:
-                name = full_name.first_name+" "+ full_name.last_name
+            patient_list = Patient.objects.all()
+            for patient in patient_list:
+                name = patient.first_name+" "+ patient.last_name
+                print(name)
                 if name.lower().find(keyword.lower()) != -1 or keyword.lower().find(name.lower()) != -1:
-                    patient = Patient.objects.filter(full_name=full_name.id).first()
-                    print(patient)
-                    if patient not in patients:
+                    if patient not in patient_list:
                         patients.append(patient)        
             adress = Address.objects.all()
             for ar in adress:
-                if keyword.lower().find(ar.no_house.lower()) != -1 or keyword.lower().find(ar.street.lower()) !=-1 or keyword.lower().find(ar.city.lower()) !=-1 or keyword.lower().find(ar.country.lower()) !=-1:
+                if keyword.lower().find(ar.hometown.lower()) != -1 or keyword.lower().find(ar.street.lower()) !=-1 or keyword.lower().find(ar.city.lower()) !=-1 or keyword.lower().find(ar.district.lower()) !=-1 or keyword.lower().find(ar.province.lower()) !=-1:
                     patient = Patient.objects.filter(address=ar.id).first()
                     if patient not in patients:
-                        patients.append(patient)  
-            response = requests.get("http://127.0.0.1:8001/api/records")
-            if response.status_code == 200:
-                health_records = response.json()
-                for health_record in health_records:
-                    if health_record['final_diagnosis'].lower().find(keyword.lower())!=-1 or health_record['symptoms'].lower().find(keyword.lower())!=-1:
-                        patient = Patient.objects.filter(pk=health_record['patient_id']).first()
-                        if patient not in patients:
-                            patients.append(patient)  
+                        patients.append(patient)   
         serializers = PatientInfoSerializer(patients, many=True)
         return Response(serializers.data, status=status.HTTP_200_OK)

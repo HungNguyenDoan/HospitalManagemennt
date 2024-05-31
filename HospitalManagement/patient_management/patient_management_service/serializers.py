@@ -2,31 +2,19 @@ from rest_framework import serializers
 from .models import *
 from django.contrib.auth.hashers import check_password
 
-class FullNameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FullName
-        fields = ['id','first_name', 'last_name']
-
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = ['id','no_house', 'street', 'city', 'country']
-
-class AccountSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Account
-        fields = ['id', 'username', 'password']
+        fields = ['id','street', 'district', 'city', 'province','hometown']
     
-
 class PatientInfoSerializer(serializers.ModelSerializer):
-    full_name = FullNameSerializer()
     address = AddressSerializer()
 
     class Meta:
         model = Patient
-        fields = ['id', 'full_name', 'address', 'date_of_birth','gender', 'phone_number', 'email']
+        fields = ['id', 'first_name', 'last_name', 'address', 'date_of_birth','gender', 'phone_number', 'email']
 
-class PatientLoginSerializer(serializers.Serializer):
+class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True) 
 
@@ -40,7 +28,7 @@ class PatientLoginSerializer(serializers.Serializer):
         account = Account.objects.filter(username=username).first()
         if account:
             if check_password(password, account.password):
-                patient = Patient.objects.filter(account=account.id).first()
+                patient = account.patient
                 patient_serializer = PatientInfoSerializer(patient)
                 return patient_serializer.data
             else:
@@ -49,41 +37,47 @@ class PatientLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('Patient does not exist.')
 
 class PatientUpdateInfoSerializer(serializers.ModelSerializer):
-    full_name = FullNameSerializer(read_only=True)
     address = AddressSerializer(read_only=True)
 
     class Meta:
         model = Patient
-        fields = ['id', 'full_name', 'address','date_of_birth','gender', 'phone_number', 'email']
+        fields = ['id', 'first_name', 'last_name', 'address','date_of_birth','gender', 'phone_number', 'email']
 
 class PatientSerializer(serializers.ModelSerializer):
-    account = AccountSerializer()
-    full_name = FullNameSerializer()
     address = AddressSerializer()
-
     class Meta:
         model = Patient
-        fields = ['id','account', 'full_name', 'address','date_of_birth', 'phone_number', 'gender','email']
-
+        fields = ['id', 'first_name','last_name', 'address','date_of_birth', 'phone_number', 'gender','email']
     def create(self, validated_data):
-        account_data = validated_data.pop('account')
-        full_name_data = validated_data.pop('full_name')
         address_data = validated_data.pop('address')
-
-        account = Account.objects.create(**account_data)
-        full_name = FullName.objects.create(**full_name_data)
-        address = Address.objects.create(**address_data)
-
-        patient = Patient.objects.create(
-            account=account,
-            full_name=full_name,
-            address=address,
-            phone_number=validated_data['phone_number'],
-            gender=validated_data['gender'],
-            date_of_birth=validated_data['date_of_birth'],
-            email=validated_data['email']
-        )
-        return patient
-
+        address_instance = Address.objects.create(**address_data)
+        patient_instance = Patient.objects.create(address=address_instance, **validated_data)
+        return patient_instance
+    
     def update(self, instance, validated_data):
-        pass
+        address_data = validated_data.pop('address')
+        address_instance = instance.address
+        for attr, value in address_data.items():
+            setattr(address_instance, attr, value)
+        address_instance.save()
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+class AccountSerializer(serializers.ModelSerializer):
+    patient = PatientSerializer()
+    class Meta:
+        model = Account
+        fields = ['id', 'username', 'password', 'patient']
+        
+    def create(self, validated_data):
+        patient_data = validated_data.pop('patient')
+        patient_serializer = PatientSerializer(data=patient_data)
+        if patient_serializer.is_valid():
+            patient_instance = patient_serializer.save()
+            account_instance = Account.objects.create(patient=patient_instance, **validated_data)
+            return account_instance
+        else:
+            raise serializers.ValidationError("Invalid Patient data.")
+    
