@@ -80,9 +80,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'doctor_management',
-        'USER': 'nevir2112',
-        'PASSWORD': 'lmaoxd',
-        'HOST': 'localhost',
+        'USER': 'root',
+        'PASSWORD': 'rootpassword',
+        'HOST': 'django_mysql',
         'PORT': '3306',
     }
 }

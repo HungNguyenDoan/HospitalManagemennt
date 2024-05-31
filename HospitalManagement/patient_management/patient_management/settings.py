@@ -79,11 +79,12 @@ WSGI_APPLICATION = 'patient_management.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+'default': {
         'ENGINE': 'djongo',
-        'NAME':'db_patient_management',
-        'HOST': 'localhost',
-        'PORT': 27017,
+        'NAME': 'db_patient_management',
+        'CLIENT': {
+            'host': 'mongodb://django_mongodb:27017',
+        }
     }
 }
 

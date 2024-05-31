@@ -17,7 +17,7 @@ class RecordCreateAPIView(APIView):
 class RecordDetailAPIView(APIView):
     
     def get_patient_info(self, patient_id):
-        url = f'http://127.0.0.1:8000/api/patient/{patient_id}/'
+        url = f'http://patient_management:8000/api/patient/{patient_id}/'
         response = requests.get(url)
         if response.status_code == 200:
             return response.json()
@@ -25,7 +25,7 @@ class RecordDetailAPIView(APIView):
             return None
 
     def get_doctor_info(self, doctor_id):
-        url = f'http://127.0.0.1:8003/api/doctor/{doctor_id}/'
+        url = f'http://doctor_management:8000/api/doctor/{doctor_id}/'
         response = requests.get(url)
         if response.status_code == 200:
             return response.json()
@@ -57,7 +57,7 @@ class RecordUpdateAPIView(APIView):
 
 class RecordListByPatientOrDoctorAPIView(APIView):
     def get_patient_info(self, patient_id):
-        url = f'http://127.0.0.1:8000/api/patient/{patient_id}/'
+        url = f'http://patient_management:8000/api/patient/{patient_id}/'
         response = requests.get(url)
         if response.status_code == 200:
             return response.json()
@@ -65,7 +65,7 @@ class RecordListByPatientOrDoctorAPIView(APIView):
             return None
 
     def get_doctor_info(self, doctor_id):
-        url = f'http://127.0.0.1:8003/api/doctor/{doctor_id}/'
+        url = f'http://doctor_management:8000/api/doctor/{doctor_id}/'
         response = requests.get(url)
         if response.status_code == 200:
             return response.json()
@@ -97,7 +97,7 @@ class RecordListByPatientOrDoctorAPIView(APIView):
 
 class RecordSearchAPIView(APIView):
     def get_patient_info(self, patient_id):
-        url = f'http://127.0.0.1:8000/api/patient/{patient_id}/'
+        url = f'http://patient_management:8000:8000/api/patient/{patient_id}/'
         response = requests.get(url)
         if response.status_code == 200:
             return response.json()
@@ -105,7 +105,7 @@ class RecordSearchAPIView(APIView):
             return None
 
     def get_doctor_info(self, doctor_id):
-        url = f'http://127.0.0.1:8003/api/doctor/{doctor_id}/'
+        url = f'http://doctor_management:8000/api/doctor/{doctor_id}/'
         response = requests.get(url)
         if response.status_code == 200:
             return response.json()
