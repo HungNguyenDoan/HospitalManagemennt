@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     DoctorCreateView, DoctorDetailView, DoctorUpdateView,
-    DoctorDeleteView, SearchDoctorsView, LoginView, LogoutView, UserRegistrationView
+    DoctorDeleteView, SearchDoctorsView, LoginView, LogoutView
 )
 
 urlpatterns = [
@@ -12,5 +12,4 @@ urlpatterns = [
     path('update/<int:id>/', DoctorUpdateView.as_view(), name='doctor-update'),
     path('delete/<int:id>/', DoctorDeleteView.as_view(), name='doctor-delete'),
     path('search/', SearchDoctorsView.as_view(), name='doctor-search'),
-    path('user/register/', UserRegistrationView.as_view(), name='user-register'),
 ]
