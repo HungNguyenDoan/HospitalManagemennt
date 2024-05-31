@@ -38,7 +38,7 @@ class PatientLoginAPIView(APIView):
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class GetAllPatientAPIView(APIView):
+class PatientListAPIView(APIView):
     def get(self, request):
         patients = Patient.objects.filter(is_active=1)
         serializers =  PatientInfoSerializer(patients, many = True)
@@ -59,7 +59,7 @@ class PatientListByDoctorAPIView(APIView):
             patients = []
             serializers = PatientInfoSerializer(patients, many=True)
             return Response(serializers.data, status=status.HTTP_200_OK) 
-class GetPatientDetailAPIView(APIView):
+class PatientDetailAPIView(APIView):
     def get_object(self, id):
         try:
             return Patient.objects.get(pk=id,is_active=1)
@@ -72,7 +72,7 @@ class GetPatientDetailAPIView(APIView):
             return Response({"message":"Bệnh nhân không tồn tại"}, status=status.HTTP_404_NOT_FOUND)
         serializer = PatientInfoSerializer(patient)
         return Response(serializer.data, status=status.HTTP_200_OK)
-class UpdatePatientAPIView(APIView):
+class PatientUpdateAPIView(APIView):
     def get_object(self, id):
         try:
             return Patient.objects.get(pk=id,is_active=1)
@@ -90,7 +90,7 @@ class UpdatePatientAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
 
-class DeletePatientAPIView(APIView):
+class PatientDeleteAPIView(APIView):
     def get_object(self, id):
         try:
             return Patient.objects.get(pk=id,is_active=1)
