@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-9gybswfax!ecz#l0j(opm^q+1kfqfddo*yw$vd_h$1_b=+ab0t
 DEBUG = True
 
 ALLOWED_HOSTS = []
+PORT = 8007
 
 
 # Application definition
@@ -37,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'payment_management_service',
 ]
 
 MIDDLEWARE = [
@@ -74,9 +77,13 @@ WSGI_APPLICATION = 'payment_management.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+     'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'db_payment_management',
+        'USER': 'root',
+        'PASSWORD': '081002',
+        'HOST': 'localhost',
+        'PORT': '3306'
     }
 }
 
