@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-9gybswfax!ecz#l0j(opm^q+1kfqfddo*yw$vd_h$1_b=+ab0t
 DEBUG = True
 
 ALLOWED_HOSTS = []
+PORT = 8007
 
 
 # Application definition
@@ -37,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'payment_management_service',
+    'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'payment_management.urls'
@@ -74,9 +79,13 @@ WSGI_APPLICATION = 'payment_management.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+     'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'db_payment_management',
+        'USER': 'root',
+        'PASSWORD': '081002',
+        'HOST': 'localhost',
+        'PORT': '3306'
     }
 }
 
@@ -121,3 +130,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+CORS_ORIGIN_ALLOW_ALL = True
