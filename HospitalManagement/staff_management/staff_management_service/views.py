@@ -6,7 +6,6 @@ from rest_framework.permissions import AllowAny
 # from .authentication import *
 
 class RegisterView(APIView):
-    permission_classes = [AllowAny]
     def post(self, request):
         serializer = StaffSerializer(data=request.data)
         if serializer.is_valid():
@@ -40,7 +39,6 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
-    permission_classes = [AllowAny]
     def post(self, request):
         serializer = StaffLoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -57,18 +55,9 @@ class LoginView(APIView):
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# class StaffInfoView(APIView):
-#     authentication_classes = [SafeJWTAuthentication]  # Sử dụng custom authentication class
-#     permission_classes = [IsAuthenticated]
 
-#     def get(self, request):
-#         staff = request.user # Người dùng được truy cập thông qua request
-#         serializer = StaffInfoSerializer(staff)
-#         return Response({"staff": serializer.data, "message": "Token is valid"}, status=status.HTTP_200_OK)
-    
 
 class StaffDetailAPIView(APIView):
-    permission_classes = [AllowAny]
     def get(self, request, id, *args, **kwargs):
         try:
             staff = Staff.objects.get(id=id)
@@ -79,8 +68,6 @@ class StaffDetailAPIView(APIView):
         
 
 class StaffUpdateAPIView(APIView):
-    # permission_classes = [IsAuthenticated]
-    permission_classes = [AllowAny]
     def put(self, request, id, *args, **kwargs):
         try:
             staff = Staff.objects.get(id=id)
@@ -95,8 +82,6 @@ class StaffUpdateAPIView(APIView):
     
 
 class StaffDeleteAPIView(APIView):
-    # permission_classes = [IsAuthenticated]
-    permission_classes = [AllowAny]
     def delete(self, request, id, *args, **kwargs):
         try:
             staff = Staff.objects.get(id=id)
@@ -108,8 +93,6 @@ class StaffDeleteAPIView(APIView):
     
 
 class StaffSearchAPIView(APIView):
-    # permission_classes = [IsAuthenticated]
-    permission_classes = [AllowAny]
     def get(self, request, *args, **kwargs):
         keywords = request.query_params.get('keywords', None)
         if not keywords:
@@ -128,8 +111,6 @@ class StaffSearchAPIView(APIView):
     
 
 class StaffLogoutAPIView(APIView):
-    # permission_classes = [IsAuthenticated]
-    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         # Thực hiện logout bằng cách gỡ bỏ session của người dùng hiện tại
         request.session.flush()
