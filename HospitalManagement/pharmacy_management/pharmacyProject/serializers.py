@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Address, Producer, MedicalSupply, Invoice, InvoiceDetail
+from .models import Address, Producer, Category, MedicalSupply, Invoice, InvoiceDetail
 
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,6 +9,11 @@ class AddressSerializer(serializers.ModelSerializer):
 class ProducerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Producer
+        fields = '__all__'
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
         fields = '__all__'
 
 class MedicalSupplySerializer(serializers.ModelSerializer):
